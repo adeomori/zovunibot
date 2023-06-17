@@ -55,18 +55,41 @@ class BotMono:
         self.flush_user_data()
         await update.message.reply_text(f'User {name} now has id {new_id}')
     
-    async def get_tasks(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        weekday = datetime.datetime.today().weekday() + 1
+    async def get_tasks_by_weekday(self, update: Update, context: ContextTypes.DEFAULT_TYPE, weekday) -> None:
+        # weekday = datetime.datetime.today().weekday() + 1
         username = update.effective_user.full_name
         tasks = self.get_tasks_by_id_and_day(self.mapping[username], weekday)
-        
-        await update.message.reply_text(f'User {username}  has following tasks:\n {tabulate(tasks)}')
+        tasks_with_levels = tasks['location'].str.pad(width=12, side="right") + ":               " + tasks["task"]
+        strval = '\n'.join(tasks_with_levels.values)
+        await update.message.reply_text(f'User {username}  has following tasks:\n{strval}')
+ 
+    async def get_today_tasks(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        weekday = datetime.datetime.today().weekday() + 1
+        await self.get_tasks_by_weekday(update, context, weekday)
+    
+    async def get_yesterday_tasks(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        weekday = (datetime.datetime.today() -  datetime.timedelta(days=1)).weekday() + 1
+        await self.get_tasks_by_weekday(update, context, weekday)
 
+    async def huynu_zakazal(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        username = update.effective_user.full_name
+        await update.message.reply_text(f'{username} считает, что хуйню заказал!')
 
-    async def hello(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        await update.message.reply_text(f'Hello {update.effective_user.first_name}')
+    async def CUM(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        username = update.effective_user.full_name
+        await update.message.reply_text(f'{username} делает троекратный CUM!')
 
-
+    async def help(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        """Display a help message"""
+        await update.message.reply_text("""
+                                        You can use the following commands:
+    /register_user num : Set your number from the violence table
+    /update_table : Load new version of violence table
+    /get_today_tasks : Get a list of your today tasks
+    /get_yesterday_tasks : Get a list of your yesterday tasks
+    /CUM : Tell everyone that you are fucking cumming
+    /huynu_zakazal: Tell everyone, that you huynu zakazal
+                                        """)
     def main(self):
         self.load_data_from_gdock()
         self.restore_users_data()
@@ -75,10 +98,13 @@ class BotMono:
 
         self.app = ApplicationBuilder().token(token).build()
 
-        self.app.add_handler(CommandHandler("hello", self.hello))
+        self.app.add_handler(CommandHandler("help", self.help))
         self.app.add_handler(CommandHandler("update_table", self.upgrade_table))
         self.app.add_handler(CommandHandler("register_user", self.register_user))
-        self.app.add_handler(CommandHandler("get_tasks", self.get_tasks))
+        self.app.add_handler(CommandHandler("get_today_tasks", self.get_today_tasks))
+        self.app.add_handler(CommandHandler("get_yesterday_tasks", self.get_yesterday_tasks))
+        self.app.add_handler(CommandHandler("huynu_zakazal", self.huynu_zakazal))
+        self.app.add_handler(CommandHandler("CUM", self.CUM))
         self.app.run_polling()
 
 if __name__ == "__main__":
