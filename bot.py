@@ -58,10 +58,13 @@ class BotMono:
     async def get_tasks_by_weekday(self, update: Update, context: ContextTypes.DEFAULT_TYPE, weekday) -> None:
         # weekday = datetime.datetime.today().weekday() + 1
         username = update.effective_user.full_name
-        tasks = self.get_tasks_by_id_and_day(self.mapping[username], weekday)
-        tasks_with_levels = tasks['location'].str.pad(width=12, side="right") + ":               " + tasks["task"]
-        strval = '\n'.join(tasks_with_levels.values)
-        await update.message.reply_text(f'User {username}  has following tasks:\n{strval}')
+        if username not in self.mapping:
+            await update.message.reply_text(f'STOP RIGHT THERE YOU CRIMINAL sCUM! REGISTER FIRST!')
+        else:
+            tasks = self.get_tasks_by_id_and_day(self.mapping[username], weekday)
+            tasks_with_levels = tasks['location'].str.pad(width=12, side="right") + ":               " + tasks["task"]
+            strval = '\n'.join(tasks_with_levels.values)
+            await update.message.reply_text(f'User {username}  has following tasks:\n{strval}')
  
     async def get_today_tasks(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         weekday = datetime.datetime.today().weekday() + 1
