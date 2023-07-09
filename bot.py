@@ -97,18 +97,22 @@ class BotMono:
         self.load_data_from_gdock()
         self.restore_users_data()
         with open("zovuni_token", "r") as f:
-            token = f.read()
-
+            token = f.read().strip()
+        print(token)
         self.app = ApplicationBuilder().token(token).build()
-
+        print(
+                "app created"
+                )
         self.app.add_handler(CommandHandler("help", self.help))
         self.app.add_handler(CommandHandler("update_table", self.upgrade_table))
         self.app.add_handler(CommandHandler("register_user", self.register_user))
         self.app.add_handler(CommandHandler("get_today_tasks", self.get_today_tasks))
         self.app.add_handler(CommandHandler("get_yesterday_tasks", self.get_yesterday_tasks))
         self.app.add_handler(CommandHandler("huynu_zakazal", self.huynu_zakazal))
+
         self.app.add_handler(CommandHandler("CUM", self.CUM))
         self.app.run_polling()
+
 
 if __name__ == "__main__":
     bot = BotMono()
